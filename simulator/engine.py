@@ -15,10 +15,13 @@ class Car:
         heading = self.get_heading()
         t = QTransform()
         t.translate(*position.toTuple())
-        r = np.arctan2(*heading.toTuple())
+        r = np.arctan2(*heading.toTuple()[::-1])
         t.rotateRadians(r)
 
         return t
+    
+    def get_tags(self) -> dict:
+        raise NotImplementedError
 
 class Road:
     pass
@@ -39,6 +42,7 @@ class DummyCar(Car):
     def __init__(self, x, y, dx, dy):
         self.position = QVector2D(x, y)
         self.heading = QVector2D(dx, dy).normalized()
+        self.tags = {}
 
     def get_position(self) -> QVector2D:
         return self.position
@@ -46,7 +50,9 @@ class DummyCar(Car):
     def get_heading(self) -> QVector2D:
         return self.heading
 
-
+    def get_tags(self):
+        return self.tags
+    
 class DummyWorld(World):
     def __init__(self, n: int = 100, w: float = 1000, h: float = 800):
         self.n = n
@@ -57,6 +63,7 @@ class DummyWorld(World):
     def get_cars(self) -> Sequence[Car]:
         return self.cars
 
+    
     def _generate_cars(self):
         xs = np.random.rand(self.n) * self.w
         ys = np.random.rand(self.n) * self.h
@@ -67,3 +74,7 @@ class DummyWorld(World):
         for x, y, r in zip(xs, ys, rs):
             car = DummyCar(x, y, np.cos(r), np.sin(r))
             self.cars.append(car)
+
+        car = DummyCar(400, 200, 0, 1)
+        car.tags["special"] = True
+        self.cars.append(car)
