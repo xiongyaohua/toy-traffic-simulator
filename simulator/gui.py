@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QMainWindow
-from PySide6.QtGui import QPainter, QTransform, QVector2D
+from PySide6.QtGui import QPainter, QTransform, QVector2D, QMouseEvent
 #from PySide6.QtCore import QPointF
+from PySide6.QtCore import Qt 
 import numpy as np
 from .engine import DummyWorld, World, Car
 
@@ -12,6 +13,8 @@ class MainWindow(QMainWindow):
         self.world = DummyWorld()
         self.camera = Camera()
 
+        self.pan_last_pos = None
+
     def paintEvent(self, event) -> None:
         with QPainter(self) as painter:
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -19,6 +22,37 @@ class MainWindow(QMainWindow):
             self.camera.draw(painter, self.world)
 
         return super().paintEvent(event)
+    
+    def wheelEvent(self, event) -> None:
+        angle = event.angleDelta().y() / 8
+        factor = np.power(1.01, angle)
+        self.camera.scale *= factor
+        self.update()
+        return super().wheelEvent(event)
+    
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.LeftButton:
+            self.pan_last_pos = QVector2D(event.pos())
+            print(f"pressed at {self.pan_last_pos}")
+
+        return super().mousePressEvent(event)
+    
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.LeftButton:
+            print("released")
+            self.pan_last_pos = None
+        return super().mouseReleaseEvent(event)
+    
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self.pan_last_pos:
+            pos = QVector2D(event.pos())
+            v = pos - self.pan_last_pos
+            v.setY(-v.y())
+            self.camera.center -= v/self.camera.scale
+            self.update()
+            self.pan_last_pos = pos
+
+        return super().mouseMoveEvent(event)
     
 class Camera:
     def __init__(self) -> None:
