@@ -20,13 +20,13 @@ class CenterLine:
 
 class Lane:
     def __init__(self, center_line):
-        self.center_line = center_line
+        self.center_line: CenterLine = center_line
+        self.cars = []
 
-    def get_center_line(self):
-        return self.center_line
-
-    def insert_car(self, car: Car) -> bool:
-        raise NotImplementedError
+    def add_car(self, car: Car) -> bool:
+        car.lane = self
+        self.cars.append(car)
+        return True
     
     def get_cars_in_range(self, position: float, length: float):
         raise NotImplementedError
@@ -38,15 +38,6 @@ class Lane:
         raise NotImplementedError
     
     def execute_decision(self, dt):
-        raise NotImplementedError
+        for car in self.cars:
+            car.move()
     
-class CellunaAutomataLane(Lane):
-    def __init__(self, center_line: CenterLine, cell_length: float):
-        super().__init__(center_line)
-        self.num_cells = int(center_line.get_length() / cell_length)
-        if self.num_cells == 0:
-            self.num_cells = 1
-
-        self.cell_length = center_line.get_length() / self.num_cells
-
-        self.cells = [None] * self.cell_length

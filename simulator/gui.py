@@ -81,7 +81,7 @@ class Camera:
             self.draw_car(car, painter)
 
     def draw_car(self, car: Car, painter: QPainter):
-        painter.drawRect(-20, -10, 40, 20)
+        painter.fillRect(-20, -10, 40, 20, "Grey")
 
         color = "Blue"
         if "special" in car.get_tags():
