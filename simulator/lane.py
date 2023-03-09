@@ -3,6 +3,7 @@ import numpy as np
 from numpy.linalg import norm
 from .car import Car
 from .util import Vec2, vec2_to_array
+from .range import Range
 
 class CenterLine:
     def __init__(self, p1: Vec2, p2: Vec2):
@@ -22,7 +23,7 @@ class CenterLine:
         p = self.p1 + pos * self.tangent
         return (p, self.tangent)
     
-    def get_offseted(self, offset) -> CenterLine:
+    def get_offseted(self, offset):
         p1 = self.p1 + self.normal * offset
         p2 = self.p2 + self.normal * offset
         return CenterLine(p1, p2)
@@ -35,7 +36,16 @@ class Lane:
 
     def add_car(self, car: Car) -> bool:
         self.cars.append(car)
+        self.cars.sort(key=lambda car: car.pos)
+        
         return True
+    
+    def add_cars(self, cars:Sequence[Car]) -> bool:
+        self.cars.extend(cars)
+        self.cars.sort(key=lambda car: car.pos)
+        
+        return True
+
     
     def get_cars(self) -> Sequence[Car]:
         for car in self.cars:
@@ -50,12 +60,12 @@ class Lane:
         else:
             return None
         
-    def is_range_empty(self, f, t) -> bool:
-        pass
+    def is_range_clear(self, back, front) -> bool:
+        range = Range(back, front)
+        return _is_range_clear(range, self.cars)
     
     def update_context(self, dt):
-        self.cars.sort(key=lambda car: car.pos)
-
+        # Assume cars sorted by pos
         n = len(self.cars)
         if n >= 1:
             for car, next_car in zip(self.cars[:-1], self.cars[1:]):
@@ -70,3 +80,25 @@ class Lane:
         for car in self.cars:
             car.execute_decision(dt)
     
+def _is_range_clear(range: Range, cars:list[Car]) -> bool:
+    if len(cars) <= 5:
+        # Linear search for sort list
+        for car in cars:
+            cr = car.get_range()
+            if range.intersect(cr):
+                return False
+        else:
+            return True
+    else:
+        # Bi-section search for long list
+        l = len(cars)
+        mid = l // 2
+        cr = cars[mid].get_range()
+        if range.intersect(cr):
+            return False
+        else:
+            if cr.back >= range.front:
+                return _is_range_clear(range, cars[mid+1:])
+            else:
+                return _is_range_clear(range, cars[:mid])
+

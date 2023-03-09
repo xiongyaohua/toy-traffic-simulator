@@ -1,6 +1,7 @@
 from typing import Optional
 import numpy as np
 from .util import Vec2
+from .range import Range
 
 class Car:
     def __init__(self, pos:float =0.0, speed:float =0.0):
@@ -12,6 +13,9 @@ class Car:
         self.heading: Optional[Vec2] = None
         self.tag: dict = {}
         self.context: dict = {}
+
+    def get_range(self) -> Range:
+        return Range(self.pos-self.length, self.pos)
 
     def get_position(self) -> Optional[Vec2]:
         return self.position

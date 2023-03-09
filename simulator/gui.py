@@ -1,19 +1,32 @@
 from PySide6.QtWidgets import QMainWindow
 from PySide6.QtGui import QPainter, QTransform, QVector2D, QMouseEvent
 #from PySide6.QtCore import QPointF
-from PySide6.QtCore import Qt 
+from PySide6.QtCore import Qt, QTimer
 import numpy as np
 from .engine import DummyWorld, World, Car
+from .road import Road
+from .util import array_to_qpointf
+
+SCALE = 10.0 # pixel/meter
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.resize(1200, 800)
         print("Hello MainWindow")
-        self.world = DummyWorld()
+        #self.world = DummyWorld()
+        self.world = World()
         self.camera = Camera()
 
         self.pan_last_pos = None
+        
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.on_timer)
+        self.timer.start(50)
+
+    def on_timer(self):
+        self.world.step()
+        self.update()
 
     def paintEvent(self, event) -> None:
         with QPainter(self) as painter:
@@ -41,6 +54,7 @@ class MainWindow(QMainWindow):
         if event.button() == Qt.LeftButton:
             print("released")
             self.pan_last_pos = None
+            print(self.camera.center)
         return super().mouseReleaseEvent(event)
     
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
@@ -56,7 +70,7 @@ class MainWindow(QMainWindow):
     
 class Camera:
     def __init__(self) -> None:
-        self.center = QVector2D(400, 200)
+        self.center = QVector2D(500*SCALE, 500*SCALE)
         self.scale = 0.5
 
     def draw(self, painter: QPainter, world: World):
@@ -74,6 +88,11 @@ class Camera:
 
         transform = camera_transform * vp_transform
 
+        painter.setTransform(transform)
+        for road in world.get_roads():
+            self.draw_road(road, painter)
+
+        #print([car.pos for car in world.get_cars()])
         for car in world.get_cars():
             global_transform = self.get_transform(car)
             painter.setTransform(global_transform * transform)
@@ -81,21 +100,27 @@ class Camera:
             self.draw_car(car, painter)
 
     def draw_car(self, car: Car, painter: QPainter):
-        painter.fillRect(-20, -10, 40, 20, "Grey")
+        painter.fillRect(-50, -15, 50, 30, "Grey")
 
         color = "Blue"
         if "special" in car.get_tags():
             color = "Red"      
-        painter.fillRect(10, -6, 5, 12, color)
+        painter.fillRect(-20, -10, 10, 20, color)
 
         painter.drawPoint(0, 0)
+
+    def draw_road(self, road: Road, painter: QPainter):
+        for line in road.get_lines():
+            p1 = array_to_qpointf(line[0]*SCALE)
+            p2 = array_to_qpointf(line[1]*SCALE)
+            painter.drawLine(p1, p2)
     
     def get_transform(self, car: Car) -> QTransform:
         position = car.get_position()
         heading = car.get_heading()
 
         t = QTransform()
-        t.translate(*position)
+        t.translate(position[0]*SCALE, position[1]*SCALE)
         r = np.arctan2(*heading[::-1])
         t.rotateRadians(r)
 
