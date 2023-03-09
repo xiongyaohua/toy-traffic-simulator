@@ -1,3 +1,4 @@
+from typing import Optional
 import numpy as np
 from .util import Vec2
 
@@ -6,15 +7,24 @@ class Car:
         self.pos = pos
         self.speed = speed
         self.acc = 0.0
+        self.length = 5.0
+        self.position: Optional[Vec2] = None
+        self.heading: Optional[Vec2] = None
+        self.tag: dict = {}
+        self.context: dict = {}
 
-    def get_position(self) -> Vec2:
-        raise NotImplementedError
+    def get_position(self) -> Optional[Vec2]:
+        return self.position
 
-    def get_heading(self) -> Vec2:
-        raise NotImplementedError
+    def get_heading(self) -> Optional[Vec2]:
+        return self.heading
 
     def get_tags(self) -> dict:
-        raise NotImplementedError
-    
-    def move(self, dt):
-        self.pos = self.pos + self.speed * dt + 0.5 * self.acc * dt * dt
+        return self.tag
+
+    def make_decision(self, dt:float):
+        self.acc += 1.0*dt
+
+    def execute_decision(self, dt:float):
+        self.speed += self.acc
+        self.pos += (self.speed * dt + 0.5 * self.acc * dt * dt)

@@ -14,12 +14,6 @@ class DummyCar(Car):
         self.heading = (dx, dy)
         self.tags = {}
 
-    def get_position(self) -> Vec2:
-        return self.position
-
-    def get_heading(self) -> Vec2:
-        return self.heading
-
     def get_tags(self):
         return self.tags
     
