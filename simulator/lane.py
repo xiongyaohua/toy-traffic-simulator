@@ -1,9 +1,9 @@
 import numpy as np
-from PySide6.QtGui import QVector2D
 from .car import Car
+from .util import Vec2
 
 class CenterLine:
-    def __init__(self, p1: QVector2D, p2: QVector2D):
+    def __init__(self, p1: Vec2, p2: Vec2):
         self.p1 = p1
         self.p2 = p2
 

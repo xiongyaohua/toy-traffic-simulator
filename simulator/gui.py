@@ -75,7 +75,7 @@ class Camera:
         transform = camera_transform * vp_transform
 
         for car in world.get_cars():
-            global_transform = car.get_transform()
+            global_transform = self.get_transform(car)
             painter.setTransform(global_transform * transform)
             
             self.draw_car(car, painter)
@@ -89,3 +89,14 @@ class Camera:
         painter.fillRect(10, -6, 5, 12, color)
 
         painter.drawPoint(0, 0)
+    
+    def get_transform(self, car: Car) -> QTransform:
+        position = car.get_position()
+        heading = car.get_heading()
+
+        t = QTransform()
+        t.translate(*position)
+        r = np.arctan2(*heading[::-1])
+        t.rotateRadians(r)
+
+        return t

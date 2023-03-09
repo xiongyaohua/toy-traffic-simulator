@@ -1,7 +1,7 @@
 from typing import Sequence
 import numpy as np
-from PySide6.QtGui import QVector2D, QTransform
 
+from .util import Vec2, vec2_to_array
 from .lane import Lane
 from .car import Car
 from .road import Road
@@ -10,14 +10,14 @@ from .world import World
 
 class DummyCar(Car):
     def __init__(self, x, y, dx, dy):
-        self.position = QVector2D(x, y)
-        self.heading = QVector2D(dx, dy).normalized()
+        self.position = (x, y)
+        self.heading = (dx, dy)
         self.tags = {}
 
-    def get_position(self) -> QVector2D:
+    def get_position(self) -> Vec2:
         return self.position
 
-    def get_heading(self) -> QVector2D:
+    def get_heading(self) -> Vec2:
         return self.heading
 
     def get_tags(self):
