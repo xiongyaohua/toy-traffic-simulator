@@ -68,9 +68,11 @@ class Lane:
         # Assume cars sorted by pos
         n = len(self.cars)
         if n >= 1:
-            for car, next_car in zip(self.cars[:-1], self.cars[1:]):
-                car.context["front_gap"] = next_car.pos - car.pos - next_car.length
+            for car, front_car in zip(self.cars[:-1], self.cars[1:]):
+                car.context["front_gap"] = front_car.pos - car.pos - front_car.length
+                car.context["approaching_speed"] = car.speed - front_car.speed
             self.cars[-1].context["front_gap"] = 1000.0
+            self.cars[-1].context["approaching_speed"] = 0.0
     
     def make_decision(self, dt):
         for car in self.cars:

@@ -8,7 +8,7 @@ from .road import Road
 from .util import array_to_qpointf
 
 SCALE = 10.0 # pixel/meter
-
+FPS = 60.0
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -22,7 +22,8 @@ class MainWindow(QMainWindow):
         
         self.timer = QTimer()
         self.timer.timeout.connect(self.on_timer)
-        self.timer.start(50)
+        self.timer.start(1000.0/FPS)
+        self.world.dt = 0.05
 
     def on_timer(self):
         self.world.step()
@@ -108,6 +109,7 @@ class Camera:
         painter.fillRect(-20, -10, 10, 20, color)
 
         painter.drawPoint(0, 0)
+        #painter.drawText(0, 0, "{:.2f}".format(car.acc))
 
     def draw_road(self, road: Road, painter: QPainter):
         for line in road.get_lines():
