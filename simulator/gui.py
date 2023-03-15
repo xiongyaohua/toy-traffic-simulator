@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.timer = QTimer()
         self.timer.timeout.connect(self.on_timer)
         self.timer.start(1000.0/FPS)
-        self.world.dt = 0.05
+        self.world.dt = 1/FPS
 
     def on_timer(self):
         self.world.step()
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         if self.pan_last_pos:
             pos = QVector2D(event.pos())
             v = pos - self.pan_last_pos
-            v.setY(-v.y())
+            #v.setY(-v.y())
             self.camera.center -= v/self.camera.scale
             self.update()
             self.pan_last_pos = pos
@@ -81,7 +81,8 @@ class Camera:
 
         vp_transform = QTransform()
         vp_transform.translate(width/2, height/2)
-        vp_transform.scale(1, -1)
+        vp_transform.scale(1, 1)
+        #vp_transform.scale(1, -1)
 
         camera_transform = QTransform()
         camera_transform.scale(self.scale, self.scale)
@@ -109,7 +110,7 @@ class Camera:
         painter.fillRect(-20, -10, 10, 20, color)
 
         painter.drawPoint(0, 0)
-        #painter.drawText(0, 0, "{:.2f}".format(car.acc))
+        painter.drawText(0, 0, "{:.2f}".format(car.acc))
 
     def draw_road(self, road: Road, painter: QPainter):
         for line in road.get_lines():
