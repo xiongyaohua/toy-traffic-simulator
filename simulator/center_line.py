@@ -5,16 +5,22 @@ from .util import Vec2, vec2_to_array
 POINTS_AROUND_CIRCLE = 144
 
 class CenterLine:
-    def __init__(self, points=[]):
+    def __init__(self, points=[], radius=50.0):
         self.segments = []
         if len(points) >= 2:
-            self._make_segments(points)
+            self._make_segments(points, radius)
 
-    def _make_segments(self, points):
+    def _make_segments(self, points, radius):
         segments = []
+        
+        # make line segments
         for p1, p2 in zip(points[:-1], points[1:]):
             line = Line(p1, p2)
             segments.append(line)
+
+        # insert arcs between lines
+        if len(segments) >= 2:
+            pass
 
         self.segments = segments
 
@@ -31,7 +37,7 @@ class CenterLine:
             points = []
             points.extend(self.segments[0].tesselate())
             for i in range(1, n):
-                points.extend(self.segments[i].tesselate()[:-1])
+                points.extend(self.segments[i].tesselate())
             return points
     
     def sample_at(self, pos: float):

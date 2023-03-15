@@ -8,7 +8,7 @@ class World:
         self.time = 0.0
         self.dt = 0.1
 
-        road = Road((100,100), (1000, 1000))
+        road = Road([(100,100), (500, 500), (500, 1000)])
         self.roads.append(road)
 
     def get_cars(self) -> Sequence[Car]:

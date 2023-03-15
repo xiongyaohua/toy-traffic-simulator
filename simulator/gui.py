@@ -71,8 +71,8 @@ class MainWindow(QMainWindow):
     
 class Camera:
     def __init__(self) -> None:
-        self.center = QVector2D(500*SCALE, 500*SCALE)
-        self.scale = 0.5
+        self.center = QVector2D(300*SCALE, 500*SCALE)
+        self.scale = 0.2
 
     def draw(self, painter: QPainter, world: World):
         viewport = painter.viewport()
