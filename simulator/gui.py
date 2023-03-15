@@ -114,9 +114,10 @@ class Camera:
 
     def draw_road(self, road: Road, painter: QPainter):
         for line in road.get_lines():
-            p1 = array_to_qpointf(line[0]*SCALE)
-            p2 = array_to_qpointf(line[1]*SCALE)
-            painter.drawLine(p1, p2)
+            for p1, p2 in zip(line[:-1], line[1:]):
+                p1 = array_to_qpointf(p1*SCALE)
+                p2 = array_to_qpointf(p2*SCALE)
+                painter.drawLine(p1, p2)
     
     def get_transform(self, car: Car) -> QTransform:
         position = car.get_position()
