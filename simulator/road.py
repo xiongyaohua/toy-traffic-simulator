@@ -21,7 +21,7 @@ class Source:
 
 class Road:
     def __init__(self, p1: Vec2, p2: Vec2, nlane=3):
-        self.center_line = CenterLine(p1, p2)
+        self.center_line = CenterLine([p1, p2])
         self.length = self.center_line.get_length()
 
         self.lanes:list[Lane] = []
