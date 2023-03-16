@@ -14,12 +14,13 @@ class CenterLine:
         segments = []
         
         # make line segments
-        for p1, p2 in zip(points[:-1], points[1:]):
+        if len(points) == 2:
+            p1, p2 = points
             line = Line(p1, p2)
             segments.append(line)
 
         # insert arcs between lines
-        if len(segments) >= 2:
+        if len(segments) >= 3:
             pass
 
         self.segments = segments
@@ -53,6 +54,33 @@ class CenterLine:
         ct = CenterLine()
         ct.segments = segments
         return ct
+
+def _make_arc(p1, p2, p3, radius):
+    v1 = p1 - p2
+    v3 = p3 - p2
+    v1 /= np.linalg.norm(v1)
+    v3 /= np.linalg.norm(v3)
+
+    v = (v1 + v3) / 2.0
+    v /= np.linalg.norm(v)
+    
+    # dot product determines angle
+    d = np.dot(v1, v3)
+    alpha = np.arccos(d)
+
+    # cross product determines CW/CWW
+    c = v1[0] * v3[1] - v1[1] * v3[0]
+    
+    t = r / np.cos(alpha/2)
+    b = r / np.tan(alpha/2)
+
+    o = p2 + v * t
+    s1 = p2 + v1 * b
+    vs1 = s1 - o
+    a = np.arctan2(vs1[1], vs1[0])
+    da = alpha * np.sign(c)
+
+    return Arc(o, radius, a, da)
 
 class Arc:
     def __init__(self, center: Vec2, r:float, a:float, da:float):
